@@ -1,83 +1,175 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Next B3A</title>
+<meta name="theme-color" content="#080911">
+<title>Next B3A — Night City Transit</title>
 <style>
-  body { font-family: system-ui, "Segoe UI", "Microsoft JhengHei", sans-serif; margin: 0;
-         background: #f4f6f8; color: #1f2933; }
-  header { background: #c00000; color: #fff; padding: 16px 24px; }
-  header h1 { margin: 0; font-size: 28px; }
-  header p { margin: 4px 0 0; opacity: .9; }
-  main { display: flex; flex-wrap: wrap; gap: 20px; padding: 24px; }
-  section { flex: 1 1 320px; background: #fff; border-radius: 12px; padding: 18px 22px;
-            box-shadow: 0 1px 4px rgba(0,0,0,.12); }
-  h2 { margin: 0 0 4px; font-size: 20px; color: #1f4e79; }
-  .stop { color: #6b7280; margin: 0 0 14px; }
-  .bus { display: flex; justify-content: space-between; align-items: baseline;
-         border-top: 1px solid #e5e7eb; padding: 10px 0; }
-  .min { font-size: 34px; font-weight: 700; color: #c00000; }
-  .clock { color: #6b7280; }
-  .none { color: #6b7280; padding: 10px 0; }
-  footer { padding: 0 24px 24px; color: #6b7280; font-size: 14px; }
+:root{color-scheme:dark;--bg:#080911;--text:#f0f1f7;--muted:#a0a3b8;--yellow:#edff62;--cyan:#65f6e4;--pink:#ff6bbf;--line:#2a2d40}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font-family:"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 90% 0,#61315625,transparent 55%),linear-gradient(#65f6e408 1px,transparent 1px),linear-gradient(90deg,#65f6e408 1px,transparent 1px);background-size:auto,48px 48px,48px 48px}
+.mono{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace}
+.wrap{max-width:1160px;margin:auto;padding:0 32px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:25px 0;border-bottom:1px solid var(--line);color:var(--muted);font-size:11px;letter-spacing:2px}
+.brand{color:var(--cyan);font-weight:700}
+.brand b{background:var(--cyan);color:var(--bg);padding:4px 6px;margin-right:10px}
+.hero{padding:48px 0 38px;position:relative}
+.eyebrow{margin:0 0 12px;color:var(--yellow);font-size:11px;letter-spacing:3px}
+h1{font-size:clamp(66px,13vw,132px);letter-spacing:-7px;line-height:.95;margin:0;font-weight:900;font-style:italic}
+h1 span{color:var(--yellow);text-shadow:3px 2px 0 #ff6bbf65}
+h1 .period{color:var(--cyan)}
+.subtitle{color:var(--muted);margin:22px 0 0;line-height:1.8;font-size:14px}
+.subtitle strong{color:var(--text);font-weight:500}
+.hero-code{position:absolute;right:0;top:60px;border:1px solid var(--line);border-left:2px solid var(--pink);padding:12px 16px;color:var(--muted);font-size:10px;line-height:1.9;letter-spacing:1px}
+.hero-code span{color:var(--pink)}
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px;font-size:11px;letter-spacing:1px}
+.signal{display:flex;align-items:center;gap:8px;color:var(--muted)}
+.dot{height:6px;width:6px;border-radius:50%;background:var(--yellow);flex-shrink:0}
+.signal[data-state="live"] .dot{background:var(--cyan);box-shadow:0 0 9px #65f6e470}
+.signal[data-state="error"] .dot{background:var(--pink)}
+button{border:1px solid #65f6e450;background:#65f6e409;color:var(--cyan);min-height:44px;padding:10px 15px;cursor:pointer;font:inherit;letter-spacing:1px}
+button:hover{background:#65f6e41c;border-color:var(--cyan)}
+button:focus-visible{outline:2px solid var(--yellow);outline-offset:4px}
+button:disabled{opacity:.55;cursor:wait}
+main{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}
+.panel{min-width:0;position:relative;border:1px solid var(--line);border-top:2px solid var(--accent);background:linear-gradient(150deg,#161926,#0f111c);--accent:var(--cyan)}
+.panel.inbound{--accent:var(--pink)}
+.panel::after{content:"";position:absolute;right:-1px;bottom:-1px;width:15px;height:15px;background:linear-gradient(135deg,transparent 46%,var(--accent) 47%,var(--accent) 51%,var(--bg) 52%)}
+.panel-head{padding:25px 26px 20px;border-bottom:1px solid var(--line)}
+.direction{display:flex;justify-content:space-between;color:var(--accent);font-size:10px;letter-spacing:2px;margin-bottom:19px}
+.direction .arrow{font-size:20px;line-height:12px}
+h2{font-size:25px;line-height:1.3;font-weight:750;margin:0}
+.destination{display:block;color:var(--muted);font-size:12px;font-weight:400;margin-top:7px;letter-spacing:.2px}
+.stop{font-size:12px;color:#c2c5d3;margin:18px 0 0;line-height:1.7}
+.stop .label{color:var(--accent);margin-right:8px;font-size:10px;letter-spacing:1px}
+.arrivals{padding:0 26px;min-height:216px}
+.bus{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:15px 0;border-top:1px solid var(--line)}
+.bus:first-child{border-top:0;padding:22px 0}
+.arrival-label{font-size:9px;letter-spacing:2px;color:var(--muted);display:block;margin-bottom:6px}
+.min{font-size:26px;line-height:1;font-weight:700;color:var(--text);white-space:nowrap}
+.bus:first-child .min{font-size:62px;color:var(--accent);letter-spacing:-3px}
+.unit{font-size:12px;margin-left:7px;letter-spacing:1px;color:var(--muted);font-weight:400}
+.min.arriving,.bus:first-child .min.arriving{font-size:26px;letter-spacing:-1px}
+.clock{text-align:right;font-size:14px;flex:1;min-width:0}
+.clock small{display:block;color:var(--muted);font:11px/1.6 "Segoe UI",sans-serif;margin-top:4px;overflow-wrap:anywhere}
+.none{padding:42px 0;color:var(--muted);font-size:13px;line-height:1.9}
+.none strong{display:block;color:var(--accent);font-size:12px;font-weight:500;letter-spacing:1px}
+.panel-foot{margin:0 26px;padding:13px 0;border-top:1px solid var(--line);display:flex;justify-content:space-between;color:var(--muted);font-size:9px;letter-spacing:1px}
+footer{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;border-top:1px solid var(--line);margin:28px 0 0;padding:22px 0 30px;font-size:10px;color:var(--muted);line-height:1.9}
+footer strong{color:var(--cyan);font-weight:400}
+.footer-right{text-align:right;white-space:nowrap}
+@media(max-width:720px){
+.wrap{padding:0 20px}.topbar{font-size:9px;letter-spacing:1px;padding:19px 0}
+.hero{padding:33px 0 29px}h1{font-size:clamp(60px,17vw,105px);letter-spacing:-4px}
+.hero-code{display:none}.subtitle{font-size:12px;margin-top:17px}
+main{grid-template-columns:minmax(0,1fr);gap:20px}.toolbar{font-size:10px;gap:8px}
+.panel-head{padding:23px 22px 18px}.arrivals{padding:0 22px;min-height:190px}.panel-foot{margin:0 22px}
+h2{font-size:23px}footer{font-size:9px;gap:12px}
+}
+@media(max-width:350px){.wrap{padding:0 14px}.topbar{font-size:8px}.toolbar{font-size:9px}button{padding:10px}.bus:first-child .min{font-size:52px}.bus:first-child .min.arriving{font-size:24px}}
+@media(prefers-reduced-motion:no-preference){button{transition:background .15s,border-color .15s}}
 </style>
 </head>
 <body>
-<header>
-  <h1>Next B3A</h1>
-  <p>Citybus · Lingnan ⇄ Shenzhen Bay Port · 城巴 B3A</p>
+<div class="wrap">
+<div class="topbar mono"><div class="brand"><b>B3A</b> TRANSIT TERMINAL</div><span>HONG KONG / 香港</span></div>
+<header class="hero">
+<p class="eyebrow mono">YOUR NEXT CONNECTION // 下一站</p>
+<h1>NEXT <span>B3A</span><span class="period">.</span></h1>
+<p class="subtitle"><strong>Lingnan ⇄ Shenzhen Bay Port</strong><br>嶺南大學 ⇄ 深圳灣口岸 · 城巴實時到站</p>
+<div class="hero-code mono">ROUTE <span>// B3A</span><br>NETWORK // CITYBUS<br>TIMEZONE // HKT +08</div>
 </header>
+<div class="toolbar mono">
+<div class="signal" id="signal" data-state="loading" role="status"><span class="dot" aria-hidden="true"></span><span id="status">CONNECTING / 連線中</span></div>
+<button id="refresh" type="button">↻ REFRESH / 刷新</button>
+</div>
 <main>
-  <section>
-    <h2>To Shenzhen Bay Port · 往深圳灣口岸</h2>
-    <p class="stop">From Fu Tai Estate, Castle Peak Road · 富泰邨</p>
-    <div id="out">Loading…</div>
-  </section>
-  <section>
-    <h2>To Tuen Mun · 往屯門山景邨</h2>
-    <p class="stop">From Shenzhen Bay Port · 深圳灣口岸</p>
-    <div id="in">Loading…</div>
-  </section>
+<section class="panel" aria-labelledby="out-title">
+<div class="panel-head">
+<div class="direction mono"><span>01 / OUTBOUND</span><span class="arrow" aria-hidden="true">↗</span></div>
+<h2 id="out-title">往深圳灣口岸<span class="destination">To Shenzhen Bay Port</span></h2>
+<p class="stop"><span class="label mono">FROM</span>富泰邨 · 青山公路<br>Fu Tai Estate, Castle Peak Road</p>
+</div>
+<div class="arrivals" id="out" aria-live="polite"><div class="none">正在讀取班次 · Loading arrivals…</div></div>
+<div class="panel-foot mono"><span>CTB / B3A</span><span>STOP 003261</span></div>
+</section>
+<section class="panel inbound" aria-labelledby="in-title">
+<div class="panel-head">
+<div class="direction mono"><span>02 / INBOUND</span><span class="arrow" aria-hidden="true">↙</span></div>
+<h2 id="in-title">往屯門山景邨<span class="destination">To Tuen Mun (Shan King Estate)</span></h2>
+<p class="stop"><span class="label mono">FROM</span>深圳灣口岸<br>Shenzhen Bay Port</p>
+</div>
+<div class="arrivals" id="in" aria-live="polite"><div class="none">正在讀取班次 · Loading arrivals…</div></div>
+<div class="panel-foot mono"><span>CTB / B3A</span><span>STOP 003208</span></div>
+</section>
 </main>
-<footer>Data: Citybus real-time ETA, DATA.GOV.HK · updated <span id="updated">–</span> · refreshes every 30 s</footer>
+<footer class="mono">
+<div>DATA / 城巴 CITYBUS · DATA.GOV.HK<br>每 30 秒自動更新 · AUTO REFRESH 30 S</div>
+<div class="footer-right">LAST SYNC <strong id="updated">--:--:--</strong><br>HKT <span id="hkt">--:--:--</span></div>
+</footer>
+</div>
 <script>
-  // Stop IDs come from /route-stop/CTB/B3A/outbound and /stop/{id}:
-  // 003261 = Fu Tai Estate (outbound, last stop before the port)
-  // 003208 = Shenzhen Bay Port (inbound, first stop)
-  const API = "https://rt.data.gov.hk/v2/transport/citybus/eta/CTB/";
-  const BOARDS = [["out", "003261", "O"], ["in", "003208", "I"]];
-
-  async function load(boxId, stop, dir) {
-    const box = document.getElementById(boxId);
-    try {
-      const res = await fetch(API + stop + "/B3A");
-      const data = (await res.json()).data.filter(b => b.dir === dir && b.eta);
-      if (data.length === 0) {
-        box.innerHTML = '<div class="none">No bus in the next hour · 暫時沒有班次</div>';
-        return;
-      }
-      box.innerHTML = data.map(b => {
-        const t = new Date(b.eta);
-        const min = Math.max(0, Math.round((t - Date.now()) / 60000));
-        const clock = t.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit",
-                                                      timeZone: "Asia/Hong_Kong" });
-        const note = b.rmk_en ? " · " + b.rmk_en : "";
-        return `<div class="bus"><span class="min">${min === 0 ? "Arriving" : min + " min"}</span>` +
-               `<span class="clock">${clock}${note}</span></div>`;
-      }).join("");
-    } catch (e) {
-      box.innerHTML = '<div class="none">Cannot reach the data. Check the Wi-Fi.</div>';
+const API = "https://rt.data.gov.hk/v2/transport/citybus/eta/CTB/";
+const BOARDS = [["out", "003261", "O"], ["in", "003208", "I"]];
+const refreshButton = document.getElementById("refresh");
+let refreshing = false;
+function hkTime(date, seconds = false) {
+  const options = { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Hong_Kong" };
+  if (seconds) options.second = "2-digit";
+  return date.toLocaleTimeString("en-GB", options);
+}
+async function load(boxId, stop, dir) {
+  const box = document.getElementById(boxId);
+  try {
+    const res = await fetch(API + stop + "/B3A", { signal: AbortSignal.timeout(15000) });
+    if (!res.ok) throw new Error("Cannot load arrivals");
+    const payload = await res.json();
+    const data = payload.data.filter(b => b.dir === dir && b.eta);
+    box.replaceChildren();
+    if (!data.length) {
+      box.innerHTML = '<div class="none"><strong>NO UPCOMING SERVICE</strong>暫時沒有班次 · 請稍後再查</div>';
+      return true;
     }
+    data.forEach((b, index) => {
+      const t = new Date(b.eta);
+      const min = Math.max(0, Math.round((t - Date.now()) / 60000));
+      const row = document.createElement("div");
+      row.className = "bus";
+      row.innerHTML = '<div><span class="arrival-label mono"></span><span class="min mono"></span></div><div class="clock mono"><span></span><small></small></div>';
+      row.querySelector(".arrival-label").textContent = index === 0 ? "NEXT / 下一班" : "THEN / 其後";
+      const value = row.querySelector(".min");
+      if (min === 0) { value.textContent = "即將到站"; value.classList.add("arriving"); }
+      else {
+        value.textContent = min;
+        const unit = document.createElement("span");
+        unit.className = "unit"; unit.textContent = "MIN / 分"; value.append(unit);
+      }
+      row.querySelector(".clock > span").textContent = hkTime(t);
+      row.querySelector("small").textContent = b.rmk_tc || b.rmk_en || (index === 0 ? "預計到站 · ETA" : "");
+      box.append(row);
+    });
+    return true;
+  } catch (e) {
+    box.innerHTML = '<div class="none"><strong>SIGNAL LOST / 連線中斷</strong>無法讀取班次，請檢查網絡或按刷新。<br>Cannot load arrivals. Please refresh.</div>';
+    return false;
   }
-
-  function refresh() {
-    BOARDS.forEach(b => load(...b));
-    document.getElementById("updated").textContent =
-      new Date().toLocaleTimeString("en-GB", { timeZone: "Asia/Hong_Kong" });
-  }
-  refresh();
-  setInterval(refresh, 30000);
+}
+async function refresh() {
+  if (refreshing) return;
+  refreshing = true; refreshButton.disabled = true;
+  try {
+    const results = await Promise.all(BOARDS.map(b => load(...b)));
+    const success = results.every(Boolean);
+    document.getElementById("signal").dataset.state = success ? "live" : "error";
+    document.getElementById("status").textContent = success ? "LIVE DATA / 實時班次" : "CHECK NETWORK / 檢查網絡";
+    if (success) document.getElementById("updated").textContent = hkTime(new Date(), true);
+  } finally { refreshing = false; refreshButton.disabled = false; }
+}
+function tick() { document.getElementById("hkt").textContent = hkTime(new Date(), true); }
+refreshButton.addEventListener("click", refresh);
+tick(); refresh(); setInterval(tick, 1000); setInterval(refresh, 30000);
 </script>
 </body>
 </html>
